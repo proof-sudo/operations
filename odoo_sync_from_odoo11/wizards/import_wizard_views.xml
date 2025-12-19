@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action serveur pour l'import -->
+    <record id="action_project_import_excel" model="ir.actions.server">
+        <field name="name">Importer depuis Excel</field>
+        <field name="model_id" ref="model_project_project"/>
+        <field name="binding_model_id" ref="model_project_project"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">
+action = env['ir.actions.act_window']._for_xml_id('odoo_sync_from_odoo11.action_open_import_wizard')
+        </field>
+    </record>
+
+    <!-- Action window pour ouvrir le wizard -->
+    <record id="action_open_import_wizard" model="ir.actions.act_window">
+        <field name="name">Importer des projets depuis Excel</field>
+        <field name="res_model">project.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Vue du wizard -->
+    <record id="view_project_import_wizard_form" model="ir.ui.view">
+        <field name="name">project.import.wizard.form</field>
+        <field name="model">project.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Importer des projets depuis Excel">
+                <sheet>
+                    <!-- Section Fichier -->
+                    <group string="Fichier Source">
+                        <field name="import_file" filename="import_filename" string="Sélectionner le fichier Excel" required="1"/>
+                    </group>
+                    
+                    <!-- Section Options -->
+                    <group string="Options d'import">
+                        <field name="update_existing" string="Mettre à jour les projets existants"/>
+                        <field name="create_missing" string="Créer les projets manquants"/>
+                        <field name="create_missing_records" string="Créer les enregistrements manquants"/>
+                    </group>
+                    
+                    <!-- Aide format fichier -->
+                    <group string="Format du fichier attendu">
+                        <div class="alert alert-info">
+                            <p><strong>Colonnes supportées :</strong></p>
+                            <p>Nom, PM, Nature, BU, Domaine, Revenus, Cat Recurrent, AM, Presales, Date IN, Pays, Customer, Secteur, Description du Projet, Circuit, SC, CAS Build, CAS Run, CAS Train, CAS Sw, CAS Hw, CAS, Statut, Update Date</p>
+                            <p class="mb-0"><strong>La première ligne doit contenir les en-têtes</strong></p>
+                        </div>
+                    </group>
+                    
+                    <!-- Résultats -->
+                    <group string="Résultats de l'import" invisible="not success_count and not error_count">
+                        <group string="Statistiques principales">
+                            <field name="success_count" string="Projets traités avec succès" readonly="1"/>
+                            <field name="error_count" string="Erreurs rencontrées" readonly="1"/>
+                        </group>
+                        
+                        <group string="Enregistrements créés" invisible="not create_missing_records or (not created_users_count and not created_partners_count and not created_categories_count)">
+                            <field name="created_users_count" string="Utilisateurs créés" readonly="1"/>
+                            <field name="created_partners_count" string="Clients créés" readonly="1"/>
+                            <field name="created_categories_count" string="Catégories créées" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <!-- Journal -->
+                    <group string="Détails de l'import" invisible="not import_log">
+                        <field name="import_log" string="Journal d'exécution" widget="textarea" style="height: 300px;" readonly="1"/>
+                    </group>
+                </sheet>
+                
+                <footer>
+                    <button name="action_import_projects" string="Lancer l'import" type="object" class="btn-primary"/> 
+                    <button string="Fermer" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
